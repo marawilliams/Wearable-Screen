@@ -84,7 +84,13 @@ void dismissCountdown(){
   tft.fillScreen(ST77XX_BLACK);
 }
 
+void fireAlarmScreen(){
+  dismissCountdown();
+  dismissed = true;
+}
+
 void setup(void) {
+  attachInterrupt(44, fireAlarmScreen, CHANGE);
   Serial.begin(9600);
   Wire.begin(5, 6);
   tft.init(240, 280, SPI_MODE3); 
@@ -96,13 +102,22 @@ void setup(void) {
 
   drv.selectLibrary(1);
   drv.setMode(DRV2605_MODE_INTTRIG);
+  Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
+}
 
-  //BlinkScreenWhite();
-  dismissCountdown();
+bool dismissed = false;
+
+void loop() {
+  if (dismissed == false){
+    BlinkScreenWhite();
+  }
+  else{
+    idleScreen();
+  }
 }
 
 
-  void loop() {}
 // void loop() {
 //   drv.setWaveform(0, 47);  // play effect
 //   drv.setWaveform(1, 47);
