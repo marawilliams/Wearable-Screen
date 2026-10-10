@@ -20,7 +20,7 @@ constexpr uint8_t BUTTON_TWO_PIN = 43;
 constexpr uint32_t ALARM_DURATION_MS = 1000;
 constexpr uint32_t COUNTDOWN_DURATION_MS = 1000;
 constexpr uint32_t COUNTDOWN_TIMES = 5;
-
+constexpr uint32_t ESCALATION_INTERVAL_MS = 30000; 
 // colors
 constexpr uint16_t COLOR_RED = ST77XX_RED;
 constexpr uint16_t COLOR_GREEN = ST77XX_GREEN;
