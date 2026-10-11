@@ -144,8 +144,7 @@ void loop() {
         if (room) startAlarm(room);
         }
 
-    // Serial.println(dismissedOne);
-    // Serial.println(dismissedDone);
+    
     }
 
     //       tft.enableDisplay(isDisplayVisible);
