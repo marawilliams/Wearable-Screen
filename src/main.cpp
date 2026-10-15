@@ -102,7 +102,7 @@ void setup(void) {
 
   drv.selectLibrary(1);
   drv.setMode(DRV2605_MODE_INTTRIG);
-  idleScreen();
+  tft.sendCommand(0x10); //sleep in
 }
 
 bool alarmDetected = false;
@@ -111,6 +111,7 @@ bool idle = true;
 void loop() {
   if (!dismissedOne && !dismissedTwo && !dismissedDone && !idle){
     if (alarmDetected){
+      tft.sendCommand(0x11); //sleep out
       BlinkScreenWhite();
       alarmDetected = false;
       idle = false;

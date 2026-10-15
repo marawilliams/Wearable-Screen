@@ -10,7 +10,8 @@ class AlarmDisplay {
 public:
   explicit AlarmDisplay(Adafruit_ST7789& tft) : _tft(tft) {}
 
-  void begin() { _tft.init(240, 280, SPI_MODE3); }
+  void begin() { _tft.init(240, 280, SPI_MODE3); 
+                _tft.setSPISpeed(60000000);}
 
   void setInverted(bool on) { _tft.invertDisplay(on); }
 
@@ -22,6 +23,9 @@ public:
     printCentered("No Alarm", 115);
     printCentered("Detected", 175);
   }
+
+  void sleepIn() { _tft.sendCommand(0x10); }  // sleep in
+  void sleepOut() { _tft.sendCommand(0x11); }  // sleep out
 
   void showAlarm(const char* roomName) {
     _tft.fillScreen(ST77XX_WHITE);

@@ -63,7 +63,8 @@ void setup() {
     drv.selectLibrary(1);
     drv.setMode(DRV2605_MODE_INTTRIG);
 
-    alarmDisplay.showIdle();
+    // alarmDisplay.showIdle();
+    alarmDisplay.sleepIn();  // put the display to sleep initially
 }
 
 unsigned long lastToggle = 0;
@@ -77,7 +78,7 @@ void startAlarm(const Room* room) {
     dismissedOne = dismissedDone = false;
     idle = false;
     escalated = false;
-
+    alarmDisplay.sleepOut();  // wake up the display
     alarmDisplay.showAlarm(currentRoom->name);  
 
     drv.setWaveform(0, 9);
@@ -135,7 +136,7 @@ void loop() {
 
     if (dismissedDone && !idle) {
     // alarmDisplay.setInverted(false); 
-    alarmDisplay.showIdle();
+    alarmDisplay.sleepIn();
     idle = true;
     }
     
