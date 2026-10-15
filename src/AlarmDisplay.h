@@ -4,6 +4,10 @@
 #include <Fonts/FreeSerifBold24pt7b.h>
 #include <Fonts/FreeSansBold24pt7b.h>
 #include <Fonts/FreeSerif12pt7b.h>
+#include <Fonts/FreeSansBold12pt7b.h>
+#include <Fonts/FreeSansBold18pt7b.h>
+#include <Fonts/FreeSans18pt7b.h>
+#include <Fonts/FreeSerif18pt7b.h>
 #include "Config.h"
 
 class AlarmDisplay {
@@ -16,7 +20,7 @@ public:
   void setInverted(bool on) { _tft.invertDisplay(on); }
 
   void showIdle() {
-    _tft.fillScreen(ST77XX_BLACK);
+    _tft.fillScreen(ST77XX_WHITE);
     _tft.setTextSize(1);
     _tft.setFont(&FreeSerifBold24pt7b);
     _tft.setTextColor(COLOR_GRAY);
@@ -29,42 +33,68 @@ public:
 
   void showAlarm(const char* roomName) {
     _tft.fillScreen(ST77XX_WHITE);
-    _tft.fillCircle(_tft.width() / 2, _tft.height() / 2, 50, ST77XX_BLACK);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 65, ST77XX_RED);
     _tft.setTextSize(1);
 
-    _tft.setFont(&FreeSansBold24pt7b);
+    _tft.setFont(&FreeSansBold18pt7b);
     _tft.setTextColor(ST77XX_RED);
-    printCentered("FIRE", 65);
-    printCentered("ALARM", 250);
+    printCentered("FIRE ALARM", 60);
+    //printCentered("ALARM", 250);
 
-    _tft.setFont(&FreeSerif12pt7b);
+    _tft.setFont(&FreeSerif18pt7b);
+    _tft.setTextColor(ST77XX_BLACK);
+    printCentered(("in " + String(roomName)).c_str(), 100);   // inside the circle
+
+    _tft.setFont(&FreeSerifBold24pt7b);
     _tft.setTextColor(ST77XX_WHITE);
-    printCentered(roomName, _tft.height() / 2 + 6);   // inside the circle
+    _tft.setTextSize(2);
+    printCentered("!", 2 * _tft.height() / 3 + 30);   // inside the circle
+    
   }
 
   void showCountdownFrame() {
-    _tft.fillScreen(ST77XX_BLACK);
+    _tft.fillRect(0, 0, _tft.width(), _tft.height() * 0.33, ST77XX_WHITE);
     _tft.setTextSize(1);
-
-    _tft.setFont(&FreeSerifBold24pt7b);
+    _tft.setFont(&FreeSans18pt7b);
     _tft.setTextColor(ST77XX_RED);
-    printCentered("Fire Alarm", 60);
+    printCentered("Dismissing", 60);
+    printCentered("in...", 100);
 
-    _tft.setFont(&FreeSerif12pt7b);
-    _tft.setTextColor(COLOR_GRAY);
-    printCentered("Dismissed in:", 100);
-    printCentered("seconds", 260);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 65, ST77XX_RED);
   }
 
   void showCountdownDigit(int n) {
-    _tft.fillRect(0, 110, _tft.width(), 115, ST77XX_BLACK);  // erase old digit
-    _tft.setFont(&FreeSerif12pt7b);
-    _tft.setTextColor(COLOR_GRAY);
+    uint16_t circle;
+
+    switch (n) {
+      case 0: circle = 0x4B0000; break;
+      case 1: circle = 0x4B0000; break;
+      case 2: circle = 0x6C0000; break;
+      case 3: circle = 0x960101; break;
+      case 4: circle = 0xCA0101; break;
+      case 5: circle = ST77XX_RED; break;
+      default: circle = ST77XX_RED; break;
+    }
+
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 65, circle);
+    _tft.setFont(&FreeSerif18pt7b);
+    _tft.setTextColor(COLOR_WHITE);
     _tft.setTextSize(6);
     char buf[8];
     snprintf(buf, sizeof(buf), "%d", n);
     printCentered(buf, 220);
     _tft.setTextSize(1);
+  }
+
+  void animationOut(){
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 65, 0x4B0000);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 85, 0x4B0000);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 105, 0x4B0000);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 135, 0x4B0000);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 165, 0x4B0000);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 205, 0x4B0000);
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 305, 0x4B0000);
+    _tft.fillScreen(0x4B0000);
   }
 
 private:

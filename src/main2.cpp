@@ -129,9 +129,10 @@ void loop() {
     }
     else if (dismissedOne && !dismissedDone) {
     drv.stop();
-    alarmDisplay.setInverted(true);
+    alarmDisplay.setInverted(false);
     dismissCountdown();
     dismissedDone = true;
+    alarmDisplay.animationOut();
     }
 
     if (dismissedDone && !idle) {

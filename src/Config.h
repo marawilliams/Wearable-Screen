@@ -17,7 +17,7 @@ constexpr uint8_t BUTTON_ONE_PIN = 44;
 constexpr uint8_t BUTTON_TWO_PIN = 43;
 
 // timing 
-constexpr uint32_t ALARM_DURATION_MS = 1000;
+constexpr uint32_t ALARM_DURATION_MS = 2000;
 constexpr uint32_t COUNTDOWN_DURATION_MS = 1000;
 constexpr uint32_t COUNTDOWN_TIMES = 5;
 constexpr uint32_t ESCALATION_INTERVAL_MS = 30000; 
