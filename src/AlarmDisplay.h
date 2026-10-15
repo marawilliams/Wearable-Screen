@@ -53,10 +53,10 @@ public:
   }
 
   void showCountdownFrame() {
-    _tft.fillRect(0, 0, _tft.width(), _tft.height() * 0.33, ST77XX_WHITE);
+    _tft.fillRect(0, 0, _tft.width(), _tft.height() * 0.4, ST77XX_WHITE);
     _tft.setTextSize(1);
     _tft.setFont(&FreeSans18pt7b);
-    _tft.setTextColor(ST77XX_RED);
+    _tft.setTextColor(ST77XX_BLACK);
     printCentered("Dismissing", 60);
     printCentered("in...", 100);
 
@@ -67,11 +67,11 @@ public:
     uint16_t circle;
 
     switch (n) {
-      case 0: circle = 0x4B0000; break;
-      case 1: circle = 0x4B0000; break;
-      case 2: circle = 0x6C0000; break;
-      case 3: circle = 0x960101; break;
-      case 4: circle = 0xCA0101; break;
+      case 0:
+      case 1: circle = 0x4800; break;
+      case 2: circle = 0x6800; break;
+      case 3: circle = 0x9000; break;
+      case 4: circle = 0xc800; break;
       case 5: circle = ST77XX_RED; break;
       default: circle = ST77XX_RED; break;
     }
@@ -79,7 +79,7 @@ public:
     _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 65, circle);
     _tft.setFont(&FreeSerif18pt7b);
     _tft.setTextColor(COLOR_WHITE);
-    _tft.setTextSize(6);
+    _tft.setTextSize(3  );
     char buf[8];
     snprintf(buf, sizeof(buf), "%d", n);
     printCentered(buf, 220);
@@ -87,14 +87,10 @@ public:
   }
 
   void animationOut(){
-    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 65, 0x4B0000);
-    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 85, 0x4B0000);
-    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 105, 0x4B0000);
-    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 135, 0x4B0000);
-    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 165, 0x4B0000);
-    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 205, 0x4B0000);
-    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 305, 0x4B0000);
-    _tft.fillScreen(0x4B0000);
+    // for (int i = 0; i < 330; i++) {
+      // _tft.drawCircle(_tft.width() / 2, 2 * _tft.height() / 3, i, 0x4800);
+    // }
+    _tft.fillCircle(_tft.width() / 2, 2 * _tft.height() / 3, 330, 0x4800);
   }
 
 private:
