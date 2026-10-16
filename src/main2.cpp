@@ -40,8 +40,8 @@ void dismissCountdown() {
     // vibrate the motor slightly for each countdown
     for (int i = COUNTDOWN_TIMES; i >= 0; i--) 
     {
-        drv.setWaveform(0,9);
-        drv.setWaveform(1,0);
+        setWaveform(2, 9);
+
         alarmDisplay.showCountdownDigit(i);
         drv.go();
         delay(COUNTDOWN_DURATION_MS);
@@ -53,11 +53,13 @@ void dismissCountdown() {
 }
 
 void setup() {
+    //setting up the serial monitor for debugging and starting the wearable network connection
     Serial.begin(115200);
+    wearable_net_begin();
 
     attachInterrupt(BUTTON_ONE_PIN, ButtonOneInterrupt, RISING);
     // attachInterrupt(BUTTON_TWO_PIN, fireAlarmScreenTwo, RISING);
-    wearable_net_begin();
+        
     Wire.begin(SDA_PIN, SCL_PIN);
     alarmDisplay.begin();
 
@@ -72,11 +74,6 @@ void setup() {
     alarmDisplay.sleepIn();  // put the display to sleep initially
 }
 
-unsigned long lastToggle = 0;
-bool alarmPhaseOn = true;
-unsigned long lastEscalation = 0;
-bool escalated = false;
-
 void startAlarm(const Room* room) {
     currentRoom = room;
     ButtonOne =  false;
@@ -84,10 +81,7 @@ void startAlarm(const Room* room) {
     alarmDisplay.sleepOut();  // wake up the display
     alarmDisplay.showAlarm(currentRoom->name);  
 
-    drv.setWaveform(0, 9);
-    drv.setWaveform(1, 9);
-    drv.setWaveform(2, 9);
-    drv.setWaveform(3, 0);
+    setWaveform(4, 9);
 
     alarmPhaseOn = true;
     lastToggle = millis();
@@ -98,10 +92,7 @@ void startAlarm(const Room* room) {
 
 void startescalation() {
     escalated = true;
-    drv.setWaveform(0, 16);
-    drv.setWaveform(1, 16);
-    drv.setWaveform(2, 16);
-    drv.setWaveform(3, 0);
+    setWaveform(4, 16);
 
     alarmPhaseOn = true;
     lastToggle = millis();
@@ -160,3 +151,10 @@ void loop() {
 
     //       tft.enableDisplay(isDisplayVisible);
 
+
+void setWaveform(int intervals, int waveform){
+    for (int i = 0; i < intervals - 1; i++) {
+        drv.setWaveform(i, waveform);
+    }
+    drv.setWaveform(intervals - 1, 0); // end with 0 to stop
+}
