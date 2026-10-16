@@ -10,6 +10,7 @@
 #include "Config.h"
 #include "AlarmDisplay.h"
 #include "Rooms.h"
+#include "wearableNet.h"
 
 Adafruit_ST7789 tft(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 Adafruit_DRV2605 drv;
@@ -21,6 +22,7 @@ volatile bool dismissedOne = false;
 bool dismissedDone = false;
 bool alarmDetected = false;
 bool idle = true;
+bool active = false; 
 
 const Room* currentRoom = nullptr;
 
@@ -43,7 +45,8 @@ void dismissCountdown() {
         drv.go();
         delay(COUNTDOWN_DURATION_MS);
     }  
-    dismissedOne = false; 
+    dismissedOne = false;
+    active = false; 
 }
 
 void setup() {
@@ -51,7 +54,7 @@ void setup() {
 
     attachInterrupt(BUTTON_ONE_PIN, fireAlarmScreenOne, RISING);
     // attachInterrupt(BUTTON_TWO_PIN, fireAlarmScreenTwo, RISING);
-
+    wearable_net_begin();
     Wire.begin(SDA_PIN, SCL_PIN);
     alarmDisplay.begin();
 
@@ -76,7 +79,6 @@ void startAlarm(const Room* room) {
     currentRoom = room;
     // dismissedOne = dismissedTwo = dismissedDone = false;
     dismissedOne = dismissedDone = false;
-    idle = false;
     escalated = false;
     alarmDisplay.sleepOut();  // wake up the display
     alarmDisplay.showAlarm(currentRoom->name);  
@@ -106,9 +108,13 @@ void startescalation() {
     drv.go();
 }
 
+
 void loop() {
     unsigned long now = millis();
-    if (!idle && !dismissedOne && !dismissedDone) {
+    Serial.println(wearable_alert_active());
+    active = wearable_alert_active();
+    if (active && !dismissedOne && !dismissedDone) {
+
         if(!escalated && now - lastEscalation >= ESCALATION_INTERVAL_MS) {
             startescalation();
         }
@@ -133,17 +139,20 @@ void loop() {
     dismissCountdown();
     dismissedDone = true;
     alarmDisplay.animationOut();
+    alarmDetected = false;
     }
 
-    if (dismissedDone && !idle) {
+    if (dismissedDone && !active) {
     // alarmDisplay.setInverted(false); 
+
     alarmDisplay.sleepIn();
-    idle = true;
+    wearable_alert_clear();
     }
     
-    if (idle && Serial.available() > 0) {
-        const Room* room = findRoom(Serial.read());
+    if (active && !alarmDetected) {
+         const Room* room = findRoom('b');
         if (room) startAlarm(room);
+        alarmDetected = true;
         }
 
     
