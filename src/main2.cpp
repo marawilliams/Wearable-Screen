@@ -12,31 +12,32 @@
 #include "Rooms.h"
 #include "wearableNet.h"
 
+
 Adafruit_ST7789 tft(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 Adafruit_DRV2605 drv;
 AlarmDisplay alarmDisplay(tft);
 
-volatile bool dismissedOne = false;
-            // volatile bool dismissedTwo = false;
+volatile bool ButtonOne = false;
+// volatile bool ButtonTwo = false;
 
-bool dismissedDone = false;
-bool alarmDetected = false;
-bool idle = true;
-bool active = false; 
+//flags
+bool isAlarmDetected = false; //if alarm is detected, this flag will be set to true
+bool isAlarmActive = false; //if the alarm is active, this flag will be set to true
 
 const Room* currentRoom = nullptr;
 
-void IRAM_ATTR fireAlarmScreenOne() {
-    dismissedOne = true;
+void IRAM_ATTR ButtonOneInterrupt() {
+    ButtonOne = true;
 }
 
 // void IRAM_ATTR fireAlarmScreenTwo() {
-//     dismissedTwo = true;
+//     ButtonTwo = true;
 // }
 
 void dismissCountdown() {
     alarmDisplay.showCountdownFrame();
     
+    // vibrate the motor slightly for each countdown
     for (int i = COUNTDOWN_TIMES; i >= 0; i--) 
     {
         drv.setWaveform(0,9);
@@ -44,15 +45,17 @@ void dismissCountdown() {
         alarmDisplay.showCountdownDigit(i);
         drv.go();
         delay(COUNTDOWN_DURATION_MS);
-    }  
-    dismissedOne = false;
-    active = false; 
+    }
+
+    //reset the button flag and active flag after countdown is done
+    ButtonOne = false;
+    isAlarmActive = false; 
 }
 
 void setup() {
     Serial.begin(115200);
 
-    attachInterrupt(BUTTON_ONE_PIN, fireAlarmScreenOne, RISING);
+    attachInterrupt(BUTTON_ONE_PIN, ButtonOneInterrupt, RISING);
     // attachInterrupt(BUTTON_TWO_PIN, fireAlarmScreenTwo, RISING);
     wearable_net_begin();
     Wire.begin(SDA_PIN, SCL_PIN);
@@ -66,7 +69,6 @@ void setup() {
     drv.selectLibrary(1);
     drv.setMode(DRV2605_MODE_INTTRIG);
 
-    // alarmDisplay.showIdle();
     alarmDisplay.sleepIn();  // put the display to sleep initially
 }
 
@@ -77,8 +79,7 @@ bool escalated = false;
 
 void startAlarm(const Room* room) {
     currentRoom = room;
-    // dismissedOne = dismissedTwo = dismissedDone = false;
-    dismissedOne = dismissedDone = false;
+    ButtonOne =  false;
     escalated = false;
     alarmDisplay.sleepOut();  // wake up the display
     alarmDisplay.showAlarm(currentRoom->name);  
@@ -112,8 +113,8 @@ void startescalation() {
 void loop() {
     unsigned long now = millis();
     Serial.println(wearable_alert_active());
-    active = wearable_alert_active();
-    if (active && !dismissedOne && !dismissedDone) {
+    isAlarmActive = wearable_alert_active();
+    if (isAlarmActive && !ButtonOne) {
 
         if(!escalated && now - lastEscalation >= ESCALATION_INTERVAL_MS) {
             startescalation();
@@ -133,26 +134,25 @@ void loop() {
                 }
             }
     }
-    else if (dismissedOne && !dismissedDone) {
+    else if (ButtonOne) {
     drv.stop();
     alarmDisplay.setInverted(true);
     dismissCountdown();
-    dismissedDone = true;
     alarmDisplay.animationOut();
-    alarmDetected = false;
+    isAlarmDetected = false;
     }
 
-    if (dismissedDone && !active) {
+    if (!isAlarmActive) {
     // alarmDisplay.setInverted(false); 
 
     alarmDisplay.sleepIn();
     wearable_alert_clear();
     }
     
-    if (active && !alarmDetected) {
+    if (isAlarmActive && !isAlarmDetected) {
          const Room* room = findRoom('b');
         if (room) startAlarm(room);
-        alarmDetected = true;
+        isAlarmDetected = true;
         }
 
     
